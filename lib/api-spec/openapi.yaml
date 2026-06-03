@@ -3,20 +3,36 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AVIS — Agentic Visual Incident Investigation System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: videos
+    description: Video management
+  - name: detections
+    description: Object detections
+  - name: tracking
+    description: Object tracking
+  - name: events
+    description: Detected events
+  - name: reports
+    description: Investigation reports
+  - name: chat
+    description: AI investigation chat
+  - name: dashboard
+    description: Dashboard statistics
+  - name: settings
+    description: System settings
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +40,491 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /videos:
+    get:
+      operationId: listVideos
+      tags: [videos]
+      summary: List all uploaded videos
+      responses:
+        "200":
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+    post:
+      operationId: uploadVideo
+      tags: [videos]
+      summary: Upload a new video
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "201":
+          description: Created video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}:
+    get:
+      operationId: getVideo
+      tags: [videos]
+      summary: Get a single video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteVideo
+      tags: [videos]
+      summary: Delete a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /videos/{id}/process:
+    post:
+      operationId: processVideo
+      tags: [videos]
+      summary: Trigger processing pipeline for a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Processing started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /detections:
+    get:
+      operationId: listDetections
+      tags: [detections]
+      summary: List detections with optional filters
+      parameters:
+        - name: videoId
+          in: query
+          schema:
+            type: integer
+        - name: objectType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of detections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Detection"
+    post:
+      operationId: createDetection
+      tags: [detections]
+      summary: Create a detection record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DetectionInput"
+      responses:
+        "201":
+          description: Created detection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Detection"
+
+  /tracking:
+    get:
+      operationId: listTracking
+      tags: [tracking]
+      summary: List tracked objects
+      parameters:
+        - name: videoId
+          in: query
+          schema:
+            type: integer
+        - name: personId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of tracking records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrackingRecord"
+    post:
+      operationId: createTracking
+      tags: [tracking]
+      summary: Create a tracking record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackingInput"
+      responses:
+        "201":
+          description: Created tracking record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackingRecord"
+
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List detected events
+      parameters:
+        - name: videoId
+          in: query
+          schema:
+            type: integer
+        - name: severity
+          in: query
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncidentEvent"
+    post:
+      operationId: createEvent
+      tags: [events]
+      summary: Create an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+      responses:
+        "201":
+          description: Created event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncidentEvent"
+
+  /events/{id}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get a single event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncidentEvent"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /reports:
+    get:
+      operationId: listReports
+      tags: [reports]
+      summary: List investigation reports
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Generate an AI investigation report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Created report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      summary: Get a single report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteReport
+      tags: [reports]
+      summary: Delete a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /chat/conversations:
+    get:
+      operationId: listConversations
+      tags: [chat]
+      summary: List chat conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [chat]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /chat/conversations/{id}/messages:
+    get:
+      operationId: listMessages
+      tags: [chat]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    post:
+      operationId: sendMessage
+      tags: [chat]
+      summary: Send a message to the AI assistant (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: SSE stream of AI response
+          content:
+            text/event-stream: {}
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get overall dashboard statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/timeline:
+    get:
+      operationId: getDashboardTimeline
+      tags: [dashboard]
+      summary: Get recent incident timeline entries
+      responses:
+        "200":
+          description: Timeline entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimelineEntry"
+
+  /dashboard/risk-breakdown:
+    get:
+      operationId: getRiskBreakdown
+      tags: [dashboard]
+      summary: Get event count grouped by risk/severity level
+      responses:
+        "200":
+          description: Risk breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskCount"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get system settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update system settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +535,442 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        fileName:
+          type: string
+        cameraName:
+          type: string
+        status:
+          type: string
+        uploadTime:
+          type: string
+          format: date-time
+        processedAt:
+          type: ["string", "null"]
+          format: date-time
+        durationSeconds:
+          type: ["integer", "null"]
+        frameCount:
+          type: ["integer", "null"]
+        thumbnailUrl:
+          type: ["string", "null"]
+      required:
+        - id
+        - fileName
+        - cameraName
+        - status
+        - uploadTime
+
+    VideoInput:
+      type: object
+      properties:
+        fileName:
+          type: string
+        cameraName:
+          type: string
+        durationSeconds:
+          type: integer
+      required:
+        - fileName
+        - cameraName
+
+    Detection:
+      type: object
+      properties:
+        id:
+          type: integer
+        videoId:
+          type: integer
+        objectType:
+          type: string
+        confidence:
+          type: number
+        frameNumber:
+          type: integer
+        timestamp:
+          type: string
+        boundingBox:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - videoId
+        - objectType
+        - confidence
+        - frameNumber
+        - timestamp
+        - createdAt
+
+    DetectionInput:
+      type: object
+      properties:
+        videoId:
+          type: integer
+        objectType:
+          type: string
+        confidence:
+          type: number
+        frameNumber:
+          type: integer
+        timestamp:
+          type: string
+        boundingBox:
+          type: string
+      required:
+        - videoId
+        - objectType
+        - confidence
+        - frameNumber
+        - timestamp
+
+    TrackingRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        videoId:
+          type: integer
+        personId:
+          type: string
+        path:
+          type: ["string", "null"]
+        camera:
+          type: string
+        durationSeconds:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - videoId
+        - personId
+        - camera
+        - createdAt
+
+    TrackingInput:
+      type: object
+      properties:
+        videoId:
+          type: integer
+        personId:
+          type: string
+        path:
+          type: string
+        camera:
+          type: string
+        durationSeconds:
+          type: integer
+      required:
+        - videoId
+        - personId
+        - camera
+
+    IncidentEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        videoId:
+          type: integer
+        eventType:
+          type: string
+        riskScore:
+          type: integer
+        severity:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        camera:
+          type: string
+        frameNumber:
+          type: ["integer", "null"]
+        metadata:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - videoId
+        - eventType
+        - riskScore
+        - severity
+        - description
+        - timestamp
+        - camera
+        - createdAt
+
+    EventInput:
+      type: object
+      properties:
+        videoId:
+          type: integer
+        eventType:
+          type: string
+        riskScore:
+          type: integer
+        severity:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        camera:
+          type: string
+        frameNumber:
+          type: integer
+        metadata:
+          type: string
+      required:
+        - videoId
+        - eventType
+        - riskScore
+        - severity
+        - description
+        - timestamp
+        - camera
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        videoId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        summary:
+          type: string
+        findings:
+          type: string
+        recommendations:
+          type: string
+        severity:
+          type: string
+        riskScore:
+          type: integer
+        timeline:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - summary
+        - findings
+        - recommendations
+        - severity
+        - riskScore
+        - createdAt
+
+    ReportInput:
+      type: object
+      properties:
+        videoId:
+          type: integer
+        title:
+          type: string
+      required:
+        - title
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    ConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    MessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    DashboardStats:
+      type: object
+      properties:
+        totalVideos:
+          type: integer
+        totalDetections:
+          type: integer
+        activeIncidents:
+          type: integer
+        criticalIncidents:
+          type: integer
+        totalReports:
+          type: integer
+        processedVideos:
+          type: integer
+      required:
+        - totalVideos
+        - totalDetections
+        - activeIncidents
+        - criticalIncidents
+        - totalReports
+        - processedVideos
+
+    TimelineEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+        eventType:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        camera:
+          type: string
+        riskScore:
+          type: integer
+      required:
+        - id
+        - timestamp
+        - eventType
+        - description
+        - severity
+        - camera
+        - riskScore
+
+    RiskCount:
+      type: object
+      properties:
+        severity:
+          type: string
+        count:
+          type: integer
+      required:
+        - severity
+        - count
+
+    Settings:
+      type: object
+      properties:
+        loiteringThresholdMinutes:
+          type: integer
+        crowdThreshold:
+          type: integer
+        runningVelocityThreshold:
+          type: number
+        abandonedObjectMinutes:
+          type: integer
+        defaultModel:
+          type: string
+        enableMotionDetection:
+          type: boolean
+        enableFaceDetection:
+          type: boolean
+        riskScoreLoitering:
+          type: integer
+        riskScoreRestrictedArea:
+          type: integer
+        riskScoreAbandonedBag:
+          type: integer
+        riskScoreCrowd:
+          type: integer
+        riskScoreRunning:
+          type: integer
+      required:
+        - loiteringThresholdMinutes
+        - crowdThreshold
+        - runningVelocityThreshold
+        - abandonedObjectMinutes
+        - defaultModel
+        - enableMotionDetection
+        - enableFaceDetection
+        - riskScoreLoitering
+        - riskScoreRestrictedArea
+        - riskScoreAbandonedBag
+        - riskScoreCrowd
+        - riskScoreRunning
+
+    SettingsUpdate:
+      type: object
+      properties:
+        loiteringThresholdMinutes:
+          type: integer
+        crowdThreshold:
+          type: integer
+        runningVelocityThreshold:
+          type: number
+        abandonedObjectMinutes:
+          type: integer
+        defaultModel:
+          type: string
+        enableMotionDetection:
+          type: boolean
+        enableFaceDetection:
+          type: boolean
+        riskScoreLoitering:
+          type: integer
+        riskScoreRestrictedArea:
+          type: integer
+        riskScoreAbandonedBag:
+          type: integer
+        riskScoreCrowd:
+          type: integer
+        riskScoreRunning:
+          type: integer

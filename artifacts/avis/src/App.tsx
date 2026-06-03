@@ -3,24 +3,68 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import { Layout } from "@/components/layout/Layout";
 
-const queryClient = new QueryClient();
+// Pages
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import Upload from "@/pages/Upload";
+import Pipeline from "@/pages/Pipeline";
+import Detections from "@/pages/Detections";
+import Timeline from "@/pages/Timeline";
+import Evidence from "@/pages/Evidence";
+import Reports from "@/pages/Reports";
+import Chat from "@/pages/Chat";
+import Settings from "@/pages/Settings";
 
-function Home() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Replit Agent is building...</h1>
-        <p className="mt-2 text-sm text-gray-600">Your app will appear here once it's ready.</p>
-      </div>
-    </div>
-  );
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+function RedirectToDashboard() {
+  window.location.href = "/dashboard";
+  return null;
 }
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={RedirectToDashboard} />
+      <Route path="/login" component={Login} />
+      
+      <Route path="/dashboard">
+        <Layout><Dashboard /></Layout>
+      </Route>
+      <Route path="/upload">
+        <Layout><Upload /></Layout>
+      </Route>
+      <Route path="/pipeline">
+        <Layout><Pipeline /></Layout>
+      </Route>
+      <Route path="/detections">
+        <Layout><Detections /></Layout>
+      </Route>
+      <Route path="/timeline">
+        <Layout><Timeline /></Layout>
+      </Route>
+      <Route path="/evidence">
+        <Layout><Evidence /></Layout>
+      </Route>
+      <Route path="/reports">
+        <Layout><Reports /></Layout>
+      </Route>
+      <Route path="/chat">
+        <Layout><Chat /></Layout>
+      </Route>
+      <Route path="/settings">
+        <Layout><Settings /></Layout>
+      </Route>
+
       <Route component={NotFound} />
     </Switch>
   );
