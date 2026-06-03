@@ -1,0 +1,595 @@
+Build a full-stack AI-powered web application called:
+
+Agentic Visual Incident Investigation System
+
+A Computer Vision, Image Processing, and Generative AI platform that analyzes surveillance videos from multiple cameras, detects suspicious activities, investigates incidents, generates timelines, and produces AI-powered incident reports.
+
+The system should be designed as a final-year Computer Vision / Image Processing project that demonstrates practical usage of Image Processing, Object Detection, Multi-Object Tracking, Event Detection, Agentic AI, and LLM-based reasoning.
+
+PROJECT OBJECTIVE
+
+Traditional CCTV systems require humans to continuously monitor surveillance footage, making it difficult to detect suspicious activities and investigate incidents.
+
+The objective of this project is to build an AI-powered investigation platform that allows users to upload surveillance videos from multiple camera angles and automatically:
+
+Analyze footage
+Detect people, bags, and vehicles
+Track objects across frames
+Identify suspicious activities
+Generate incident timelines
+Produce investigation reports
+Answer questions about incidents through an AI assistant
+
+The project must heavily utilize Image Processing concepts and AI-based reasoning.
+
+CORE WORKFLOW
+
+User uploads:
+
+camera1.mp4
+camera2.mp4
+camera3.mp4
+
+The system performs:
+
+Frame Extraction
+Image Enhancement
+Motion Detection
+Object Detection
+Multi-Object Tracking
+Event Detection
+Risk Assessment
+LLM-based Incident Reasoning
+Timeline Generation
+Investigation Report Generation
+IMAGE PROCESSING REQUIREMENTS
+
+The application must visibly implement and display the following Image Processing techniques:
+
+Frame Extraction
+
+Extract frames from uploaded videos.
+
+Display extracted frames.
+
+Noise Reduction
+
+Apply:
+
+Gaussian Blur
+Median Filtering
+
+Display before/after comparison.
+
+Contrast Enhancement
+
+Apply Histogram Equalization.
+
+Display before/after comparison.
+
+Edge Detection
+
+Apply:
+
+Canny Edge Detection
+
+Display edge maps.
+
+Motion Detection
+
+Apply:
+
+Frame Differencing
+Background Subtraction
+
+Highlight moving objects.
+
+Morphological Operations
+
+Apply:
+
+Dilation
+Erosion
+Opening
+Closing
+
+Display intermediate processing outputs.
+
+Segmentation
+
+Separate foreground from background.
+
+Display segmentation results.
+
+COMPUTER VISION MODULE
+
+Implement YOLOv8.
+
+Detect:
+
+Person
+Bag
+Vehicle
+Bicycle
+Motorcycle
+
+Draw bounding boxes.
+
+Display confidence scores.
+
+Store detection metadata.
+
+TRACKING MODULE
+
+Implement DeepSORT.
+
+Requirements:
+
+Assign unique IDs to detected persons.
+Maintain tracking across frames.
+Display tracking paths.
+Store movement history.
+
+Example:
+
+Person #12
+
+Person #21
+
+Person #34
+
+EVENT DETECTION ENGINE
+
+Create a rule-based event engine.
+
+Detect:
+
+Loitering
+
+Condition:
+
+Person remains within same region longer than threshold.
+
+Default:
+
+5 minutes
+
+Crowd Formation
+
+Condition:
+
+More than X people gather in small area.
+
+Running Behavior
+
+Condition:
+
+Person velocity exceeds threshold.
+
+Restricted Area Intrusion
+
+Condition:
+
+Person enters predefined forbidden zone.
+
+Allow user to draw restricted zones on frame.
+
+Abandoned Object
+
+Condition:
+
+Bag remains stationary after owner leaves.
+
+Suspicious Movement
+
+Condition:
+
+Repeated back-and-forth movement.
+
+AGENTIC AI ARCHITECTURE
+
+Implement multiple agents.
+
+Vision Agent
+
+Responsibilities:
+
+Object detection
+Object classification
+Object tracking
+
+Output structured events.
+
+Example:
+
+Person detected.
+
+Camera 1.
+
+Frame 452.
+
+Event Analysis Agent
+
+Analyze tracked behavior.
+
+Determine:
+
+Normal
+Suspicious
+Critical
+Risk Assessment Agent
+
+Assign risk score.
+
+Range:
+
+0–100
+
+Example:
+
+Loitering = 40
+
+Restricted Area = 80
+
+Abandoned Bag = 95
+
+Investigation Agent
+
+Build chronological incident timeline.
+
+Example:
+
+3:42 PM
+
+Person entered lobby.
+
+3:45 PM
+
+Person remained stationary.
+
+3:49 PM
+
+Bag left unattended.
+
+Report Generation Agent
+
+Generate:
+
+Summary
+Findings
+Risk Level
+Recommendations
+AI Chat Agent
+
+Users can ask:
+
+"What suspicious activities occurred?"
+
+"Show all high-risk incidents."
+
+"Which camera detected the abandoned bag?"
+
+The agent should answer based on stored investigation data.
+
+Use RAG architecture.
+
+Store incident data in vector database.
+
+LLM INTEGRATION
+
+Use Gemini API.
+
+Alternative support:
+
+OpenAI
+Ollama
+
+The LLM should never directly analyze video.
+
+Instead:
+
+The Vision System generates structured events.
+
+The LLM receives:
+
+Person detected.
+
+Stayed 12 minutes.
+
+Near entrance.
+
+Bag abandoned.
+
+The LLM generates:
+
+Investigation narrative.
+
+Reasoning.
+
+Recommendations.
+
+Risk explanations.
+
+DATABASE DESIGN
+
+Use PostgreSQL.
+
+Tables:
+
+Videos
+
+video_id
+
+file_name
+
+upload_time
+
+camera_name
+
+Detections
+
+detection_id
+
+object_type
+
+confidence
+
+frame_number
+
+timestamp
+
+Tracking
+
+tracking_id
+
+person_id
+
+path
+
+camera
+
+duration
+
+Events
+
+event_id
+
+event_type
+
+risk_score
+
+timestamp
+
+camera
+
+Reports
+
+report_id
+
+summary
+
+recommendation
+
+severity
+
+USER INTERFACE
+
+Create a modern AI dashboard.
+
+Dark theme.
+
+Professional security operations center appearance.
+
+PAGE 1 – Login
+
+Email
+
+Password
+
+Authentication.
+
+PAGE 2 – Dashboard
+
+Display:
+
+Total Videos
+
+Detected Objects
+
+Active Incidents
+
+Critical Incidents
+
+Recent Investigations
+
+Incident Statistics Charts
+
+PAGE 3 – Video Upload Center
+
+Upload:
+
+Single Video
+
+Multiple Videos
+
+Drag-and-drop support.
+
+Supported:
+
+MP4
+
+AVI
+
+MOV
+
+PAGE 4 – Processing Pipeline Viewer
+
+Display processing stages:
+
+Original Frame
+
+Noise Reduction
+
+Histogram Equalization
+
+Edge Detection
+
+Motion Detection
+
+Segmentation
+
+Object Detection
+
+Tracking
+
+Show side-by-side visual comparison.
+
+This page is important because it demonstrates Image Processing concepts.
+
+PAGE 5 – Detection Viewer
+
+Display:
+
+Bounding Boxes
+
+Confidence Scores
+
+Object Types
+
+Tracking IDs
+
+Playback controls.
+
+PAGE 6 – Incident Timeline
+
+Chronological incident view.
+
+Example:
+
+3:42 PM
+
+Person entered.
+
+3:44 PM
+
+Loitering detected.
+
+3:49 PM
+
+Bag abandoned.
+
+Risk: High.
+
+PAGE 7 – Evidence Gallery
+
+Display snapshots.
+
+Detected frames.
+
+Annotated images.
+
+Allow image zoom.
+
+Allow downloading evidence images.
+
+PAGE 8 – Investigation Report
+
+Generate AI-powered report.
+
+Sections:
+
+Executive Summary
+
+Incident Description
+
+Timeline
+
+Risk Analysis
+
+Recommendations
+
+Export PDF.
+
+PAGE 9 – AI Investigation Assistant
+
+Chat interface.
+
+Allow questions about incidents.
+
+Use RAG retrieval.
+
+Provide source references from detected events.
+
+PAGE 10 – Settings
+
+Configure:
+
+Loitering Threshold
+
+Crowd Threshold
+
+Restricted Zones
+
+Risk Scoring Rules
+
+Model Selection
+
+API Keys
+
+TECHNOLOGY STACK
+
+Frontend:
+
+Next.js
+React
+TypeScript
+TailwindCSS
+ShadCN UI
+
+Backend:
+
+FastAPI
+
+Computer Vision:
+
+OpenCV
+YOLOv8
+DeepSORT
+
+Database:
+
+PostgreSQL
+
+Vector Database:
+
+FAISS
+
+LLM:
+
+Gemini API
+
+Authentication:
+
+JWT
+
+Deployment:
+
+Docker
+DELIVERABLES
+
+Generate:
+
+Complete folder structure
+Database schema
+Backend APIs
+Frontend pages
+Computer vision pipeline
+Agent architecture
+RAG implementation
+Docker setup
+Sample dataset integration
+README with setup instructions
+
+The final application should look like a real AI-powered security investigation platform rather than a simple object detection demo.
+
+One additional recommendation: for a college Image Processing project, I'd actually limit the scope to 3 uploaded videos, 4 event types (Loitering, Crowd Formation, Restricted Area Entry, Abandoned Object), and one Gemini-powered Investigation Agent. That version is achievable in a semester and still looks extremely strong on a resume.
