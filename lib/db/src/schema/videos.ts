@@ -10,6 +10,7 @@ export const videosTable = pgTable("videos", {
   durationSeconds: integer("duration_seconds"),
   frameCount: integer("frame_count"),
   thumbnailUrl: text("thumbnail_url"),
+  filePath: text("file_path"),
   uploadTime: timestamp("upload_time", { withTimezone: true }).notNull().defaultNow(),
   processedAt: timestamp("processed_at", { withTimezone: true }),
 });

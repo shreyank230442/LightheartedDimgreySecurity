@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health.js";
 import videosRouter from "./videos.js";
+import pipelineRouter from "./pipeline.js";
 import detectionsRouter from "./detections.js";
 import trackingRouter from "./tracking.js";
 import eventsRouter from "./events.js";
@@ -13,6 +14,7 @@ const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(videosRouter);
+router.use(pipelineRouter);
 router.use(detectionsRouter);
 router.use(trackingRouter);
 router.use(eventsRouter);

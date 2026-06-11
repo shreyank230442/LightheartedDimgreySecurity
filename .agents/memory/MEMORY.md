@@ -1,0 +1,2 @@
+- [NixOS pip in workflows](nix-pip-workflow.md) — workflow shell pip needs --break-system-packages; bash tool pip works without it
+- [OpenCV HOG API](opencv-hog-api.md) — detectMultiScale() has no finalThreshold kwarg in OpenCV 4.13; torch install times out in 120s, use onnxruntime instead

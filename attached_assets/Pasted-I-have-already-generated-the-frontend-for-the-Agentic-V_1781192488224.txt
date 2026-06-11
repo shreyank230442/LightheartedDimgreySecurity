@@ -1,0 +1,326 @@
+I have already generated the frontend for the Agentic Visual Incident Investigation System (AVIS SOC).
+
+The UI and pages already exist.
+
+DO NOT redesign the UI.
+
+DO NOT generate dummy data.
+
+DO NOT use mock data anywhere.
+
+Your task is to convert the current prototype into a fully functional Computer Vision and Image Processing application.
+
+The application must process uploaded surveillance videos and display REAL results generated from the uploaded footage.
+
+========================================
+CURRENT PROBLEM
+===============
+
+The application currently contains:
+
+* Hardcoded dashboard statistics
+* Fake detections
+* Fake incidents
+* Fake timeline events
+* Empty processing pipeline panels
+* No actual object detection
+* No actual image processing
+* No actual AI reasoning
+
+All dummy data must be removed.
+
+========================================
+VIDEO INGESTION
+===============
+
+When a user uploads an MP4 file:
+
+1. Save the file to server storage.
+2. Create a video record in database.
+3. Extract frames using OpenCV.
+4. Generate thumbnails.
+5. Store metadata.
+
+========================================
+IMAGE PROCESSING PIPELINE
+=========================
+
+Implement actual OpenCV processing.
+
+For a selected frame display:
+
+Stage 1:
+Original RGB Frame
+
+Stage 2:
+Gaussian Blur
+
+Stage 3:
+Histogram Equalization
+
+Stage 4:
+Canny Edge Detection
+
+Stage 5:
+Background Subtraction (MOG2)
+
+Stage 6:
+Object Detection Output
+
+All six pipeline images must be generated dynamically from uploaded videos.
+
+The Processing Pipeline page should display actual processed images.
+
+No placeholders.
+
+========================================
+YOLO OBJECT DETECTION
+=====================
+
+Install and use:
+
+ultralytics YOLOv8
+
+Model:
+
+yolov8n.pt
+
+Run detection on extracted frames.
+
+Detect:
+
+person
+backpack
+handbag
+suitcase
+car
+truck
+bus
+motorcycle
+bicycle
+
+Store:
+
+object class
+confidence
+frame number
+timestamp
+bounding box
+
+in database.
+
+The Detections page must show real detections from the uploaded video.
+
+When user clicks a detection:
+
+Display the corresponding frame with bounding boxes.
+
+========================================
+TRACKING
+========
+
+Implement DeepSORT.
+
+Assign tracking IDs.
+
+Example:
+
+Person #1
+Person #2
+
+Store movement history.
+
+Display tracking IDs in bounding boxes.
+
+========================================
+INCIDENT DETECTION ENGINE
+=========================
+
+Create rule-based incident detection.
+
+Running Detection:
+
+Estimate speed using object centroid displacement.
+
+If speed exceeds threshold:
+Generate running incident.
+
+Loitering Detection:
+
+If tracked object remains within small region for more than threshold:
+Generate loitering incident.
+
+Restricted Area Detection:
+
+Allow user to define polygon zones.
+
+If person enters restricted polygon:
+Generate incident.
+
+Crowd Detection:
+
+If more than N people occupy region:
+Generate crowd incident.
+
+Suspicious Movement:
+
+Detect repeated back-and-forth movement.
+
+Generate suspicious_movement incident.
+
+Store incidents in database.
+
+========================================
+TIMELINE PAGE
+=============
+
+Timeline page must be generated from actual incidents.
+
+Example:
+
+17:04:20
+Person #5 detected
+
+17:05:11
+Loitering detected
+
+17:07:45
+Restricted area intrusion
+
+No dummy events.
+
+========================================
+EVIDENCE GALLERY
+================
+
+Automatically save evidence frames.
+
+When incident occurs:
+
+Capture frame.
+
+Draw bounding boxes.
+
+Store image.
+
+Display in gallery.
+
+Allow download.
+
+========================================
+AI REPORT GENERATION
+====================
+
+Generate reports using LLM.
+
+First try:
+
+GEMINI_API_KEY
+
+If Gemini fails or API key is unavailable:
+
+Automatically fall back to:
+
+GROQ_API_KEY
+
+Supported models:
+
+llama-3.3-70b-versatile
+mixtral-8x7b
+
+The LLM should never analyze raw video.
+
+Instead pass structured incident data.
+
+Example:
+
+Person ID 3
+Stayed in same area for 8 minutes
+Risk score 65
+Location Entrance
+
+Generate:
+
+Summary
+Risk Assessment
+Recommendations
+Investigation Narrative
+
+Store report.
+
+========================================
+AI ASSISTANT PAGE
+=================
+
+Implement RAG.
+
+Knowledge base should be built from:
+
+detections
+incidents
+reports
+
+User can ask:
+
+What incidents occurred?
+
+Show all high-risk events.
+
+When did Person #3 appear?
+
+Which camera detected suspicious movement?
+
+If Gemini unavailable use Groq automatically.
+
+========================================
+DASHBOARD
+=========
+
+Dashboard metrics must come from database.
+
+Total Videos
+
+Processed Videos
+
+Detections
+
+Incidents
+
+Critical Incidents
+
+Reports
+
+All charts should update automatically after processing.
+
+========================================
+DATABASE
+========
+
+Create real database tables:
+
+videos
+frames
+detections
+tracks
+incidents
+reports
+
+Persist data.
+
+========================================
+SUCCESS CRITERIA
+================
+
+After uploading a CCTV video:
+
+I should see:
+
+1. Actual OpenCV processing results.
+2. Actual YOLO detections.
+3. Actual tracking IDs.
+4. Actual incident timeline.
+5. Actual evidence images.
+6. Actual AI-generated report.
+7. Dashboard statistics generated from uploaded footage.
+
+No mock data should remain anywhere in the application.
