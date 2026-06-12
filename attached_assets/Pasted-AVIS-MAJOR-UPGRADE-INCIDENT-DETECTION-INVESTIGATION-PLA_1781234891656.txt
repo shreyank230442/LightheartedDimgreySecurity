@@ -1,0 +1,535 @@
+AVIS MAJOR UPGRADE - INCIDENT DETECTION & INVESTIGATION PLATFORM
+
+IMPORTANT:
+
+Do NOT redesign the UI.
+
+Do NOT remove existing functionality.
+
+Do NOT break currently working features.
+
+The current system behaves like an object detection demo.
+
+The goal is to transform AVIS into an AI-powered incident detection and investigation platform capable of analyzing CCTV footage and identifying real-world incidents such as fights, road accidents, fires, explosions, and violent events.
+
+====================================================================
+PRIMARY OBJECTIVE
+=================
+
+The system should support the following workflow:
+
+Upload CCTV Video
+↓
+Analyze Entire Video
+↓
+Detect Incidents
+↓
+Generate Incident Timeline
+↓
+Jump To Incident Timestamp
+↓
+Inspect Evidence Frame
+↓
+Apply Image Processing Pipeline
+↓
+Review Incident Details
+↓
+Generate Investigation Report
+
+The focus must be INCIDENTS rather than objects.
+
+====================================================================
+TARGET INCIDENT TYPES
+=====================
+
+The platform should prioritize detection of:
+
+1. Road Accidents
+
+Vehicle collisions
+
+Vehicle overturning
+
+Pedestrian impact
+
+Vehicle entering wrong lane
+
+Sudden crash events
+
+2. Fights / Violence
+
+Physical altercations
+
+Aggressive movements
+
+Multiple people fighting
+
+Crowd violence
+
+3. Fire Incidents
+
+Visible flames
+
+Fire outbreaks
+
+Smoke detection
+
+4. Explosions
+
+Explosion flash
+
+Rapid fireball expansion
+
+Sudden large-area brightness changes
+
+Explosion aftermath
+
+5. Suspicious Activities
+
+Running away after incident
+
+Erratic movement
+
+Panic movement
+
+Unusual activity patterns
+
+6. Emergency Events
+
+Crowd panic
+
+Mass movement
+
+People collapsing
+
+Dangerous situations
+
+====================================================================
+FEATURE 1 - INCIDENT-CENTRIC TIMELINE
+=====================================
+
+Generate a timeline of detected incidents.
+
+Example:
+
+00:00:14 Road Accident
+
+00:00:38 Vehicle Collision
+
+00:01:22 Fight Detected
+
+00:02:05 Fire Detected
+
+00:02:40 Explosion Detected
+
+00:03:10 Crowd Panic
+
+For each incident store:
+
+incident_id
+
+incident_type
+
+timestamp
+
+frame_number
+
+confidence
+
+camera
+
+severity
+
+When analyst clicks incident:
+
+Jump video player to timestamp
+
+Load corresponding frame
+
+Open Incident Details
+
+====================================================================
+FEATURE 2 - VIDEO PLAYER + FRAME INVESTIGATION
+==============================================
+
+Current system selects arbitrary frames.
+
+Remove this behavior.
+
+Add:
+
+Play
+
+Pause
+
+Seek
+
+Timeline Slider
+
+Jump To Timestamp
+
+Frame Selection
+
+Display:
+
+Current Timestamp
+
+Frame Number
+
+Video Name
+
+Camera Name
+
+When analyst pauses:
+
+Extract exact frame
+
+Apply processing pipeline on selected frame
+
+Stages:
+
+Source Frame
+
+Noise Reduction
+
+Contrast Enhancement
+
+Edge Detection
+
+Segmentation
+
+Object Detection
+
+Every processing stage must use analyst-selected frame.
+
+====================================================================
+FEATURE 3 - YOLOV8 DETECTION ARCHITECTURE
+=========================================
+
+Replace HOG architecture if environment allows.
+
+Preferred:
+
+YOLOv8n
+
+Fallback:
+
+YOLOv8 ONNX Runtime
+
+Store:
+
+Object Class
+
+Confidence
+
+Bounding Box
+
+Tracking ID
+
+Timestamp
+
+Frame Number
+
+Examples:
+
+person
+
+car
+
+truck
+
+bus
+
+motorcycle
+
+bicycle
+
+fire
+
+smoke
+
+Display annotated detections.
+
+====================================================================
+FEATURE 4 - INCIDENT ANALYSIS ENGINE
+====================================
+
+Create architecture:
+
+Video
+↓
+YOLO Detection
+↓
+Tracking
+↓
+Action Recognition
+↓
+Incident Detection
+↓
+Evidence Generation
+
+The platform should prioritize incident recognition over object counting.
+
+====================================================================
+FEATURE 5 - DETECTIONS PAGE REWORK
+==================================
+
+Create two tabs.
+
+TAB 1:
+
+Objects
+
+person
+
+car
+
+truck
+
+motorcycle
+
+bicycle
+
+fire
+
+smoke
+
+TAB 2:
+
+Incidents
+
+Road Accident
+
+Vehicle Collision
+
+Fight
+
+Violence
+
+Fire
+
+Explosion
+
+Suspicious Activity
+
+Crowd Panic
+
+Emergency Event
+
+The Incidents tab becomes primary.
+
+====================================================================
+FEATURE 6 - KEYFRAME EXTRACTION
+===============================
+
+Analyze entire video.
+
+Extract:
+
+Incident Frames
+
+Crash Frames
+
+Fight Frames
+
+Explosion Frames
+
+Fire Frames
+
+Highest Motion Frames
+
+Most Important Frames
+
+Create Evidence Gallery.
+
+Clicking evidence frame:
+
+Loads frame into investigation panel.
+
+====================================================================
+FEATURE 7 - SCENE UNDERSTANDING
+===============================
+
+Generate incident summaries.
+
+Examples:
+
+"Two vehicles collided at intersection."
+
+"Three individuals involved in physical altercation."
+
+"Fire detected near roadside structure."
+
+"Possible explosion detected with rapid flash expansion."
+
+"Large crowd moving away from incident area."
+
+Store descriptions.
+
+Display inside Incident Details.
+
+====================================================================
+FEATURE 8 - INCIDENT DETAILS PANEL
+==================================
+
+For each incident display:
+
+Incident Type
+
+Severity
+
+Confidence
+
+Timestamp
+
+Frame Number
+
+Objects Involved
+
+Tracking IDs
+
+Bounding Boxes
+
+Scene Description
+
+Evidence Frame
+
+Video Source
+
+====================================================================
+FEATURE 9 - ADVANCED DETECTION FRAMEWORK
+========================================
+
+Create modular interfaces.
+
+ObjectDetector
+
+Tracker
+
+ActionRecognizer
+
+IncidentDetector
+
+EvidenceGenerator
+
+Future detectors:
+
+FightDetector
+
+AccidentDetector
+
+FireDetector
+
+ExplosionDetector
+
+ViolenceDetector
+
+The architecture must support future model upgrades without frontend modifications.
+
+====================================================================
+FEATURE 10 - FIRE / EXPLOSION / FIGHT DETECTORS
+===============================================
+
+If pretrained models are available:
+
+Integrate them.
+
+If not available:
+
+Create detector interfaces and placeholder implementations.
+
+Frontend should already support:
+
+Fight
+
+Violence
+
+Fire
+
+Explosion
+
+Accident
+
+Emergency
+
+Suspicious Activity
+
+====================================================================
+FEATURE 11 - INCIDENT ANALYSIS SUMMARY
+======================================
+
+After processing generate:
+
+Total Frames
+
+Total Objects
+
+Total Incidents
+
+Severity Distribution
+
+Incident Breakdown
+
+Example:
+
+Road Accidents: 2
+
+Fights: 3
+
+Fire Incidents: 1
+
+Explosion Events: 1
+
+Suspicious Activities: 4
+
+Display on Dashboard.
+
+====================================================================
+FEATURE 12 - INVESTIGATION REPORTS
+==================================
+
+Generate professional incident reports.
+
+Include:
+
+Video Information
+
+Processing Date
+
+Incident Timeline
+
+Evidence Frames
+
+Scene Descriptions
+
+Detection Statistics
+
+Investigation Summary
+
+Severity Assessment
+
+Export:
+
+PDF
+
+====================================================================
+IMPLEMENTATION NOTES
+====================
+
+1. Preserve existing functionality.
+
+2. Maintain FastAPI architecture.
+
+3. Use OpenCV for processing.
+
+4. Prefer YOLOv8n or YOLOv8 ONNX Runtime.
+
+5. Eliminate random frame selection.
+
+6. Use analyst-selected frames for investigation.
+
+7. Prioritize incidents rather than simple object detection.
+
+8. The system should resemble an AI-powered incident investigation platform rather than a surveillance analytics dashboard.
+
+Before implementation, inspect current architecture and determine the safest migration path while preserving all working features.
