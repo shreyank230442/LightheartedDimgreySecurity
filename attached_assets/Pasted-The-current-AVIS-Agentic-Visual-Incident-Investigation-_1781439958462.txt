@@ -1,0 +1,395 @@
+The current AVIS (Agentic Visual Incident Investigation System) application is partially functional.
+
+DO NOT redesign the UI.
+
+DO NOT change the dashboard appearance.
+
+ONLY improve functionality.
+
+====================================================
+
+1. PROCESSING PIPELINE PAGE MUST SHOW VIDEOS
+   ====================================================
+
+Current behavior:
+
+Each processing stage displays only a single static frame.
+
+This is not acceptable.
+
+Required behavior:
+
+When a user uploads a video:
+
+Generate and save complete processed videos for every image processing stage.
+
+The Processing Pipeline page must play synchronized videos for all stages.
+
+Stage 1:
+Original Video
+
+Stage 2:
+Gaussian Blur Video
+
+Stage 3:
+Contrast Enhanced Video using Histogram Equalization
+
+Stage 4:
+Edge Detection Video using Canny
+
+Stage 5:
+Background Subtraction Video using MOG2
+
+Stage 6:
+YOLOv8 Detection Video with bounding boxes
+
+Each panel must play continuously.
+
+When the user pauses or seeks the original video:
+
+All processing videos must synchronize to the same timestamp.
+
+Implementation:
+
+Process every frame.
+
+Generate output videos:
+
+original.mp4
+blur.mp4
+contrast.mp4
+edges.mp4
+background.mp4
+yolo.mp4
+
+Store them in processed_video_outputs.
+
+Frontend should display HTML5 video players rather than single images.
+
+====================================================
+2. UPGRADE OBJECT DETECTION TO YOLOv8
+=====================================
+
+Remove HOG-only detection.
+
+Use:
+
+ultralytics YOLOv8
+
+Default:
+
+yolov8n.pt
+
+Detect:
+
+person
+car
+truck
+bus
+motorcycle
+bicycle
+backpack
+suitcase
+handbag
+chair
+cell phone
+
+Store detections in database.
+
+Display bounding boxes on processed video.
+
+====================================================
+3. ADD REAL INCIDENT DETECTION
+==============================
+
+Current incidents:
+
+Loitering
+Running
+Crowd Formation
+Abandoned Object
+
+Keep these.
+
+Add:
+
+Violence Detection
+
+Fight Detection
+
+Explosion Detection
+
+Accident Detection
+
+Fall Detection
+
+Fire Detection
+
+Intrusion Detection
+
+====================================================
+4. VIOLENCE AND FIGHT DETECTION
+===============================
+
+Implement using action-recognition models.
+
+Preferred:
+
+PyTorchVideo SlowFast
+
+or
+
+X3D
+
+or
+
+VideoMAE
+
+Use temporal analysis rather than frame-based guessing.
+
+Process short clips:
+
+16–32 consecutive frames.
+
+Detect:
+
+fighting
+assault
+violent interactions
+
+Generate incident:
+
+type = violence
+
+Store confidence score.
+
+====================================================
+5. ACCIDENT DETECTION
+=====================
+
+Implement accident detection using video understanding.
+
+Examples:
+
+Vehicle collision
+
+Vehicle rollover
+
+Sudden impact
+
+Traffic accident
+
+Recommended:
+
+VideoMAE
+SlowFast
+X3D
+
+Generate:
+
+Accident Incident
+
+Severity Score
+
+Evidence Frames
+
+Timestamp
+
+====================================================
+6. EXPLOSION DETECTION
+======================
+
+Explosion detection should not be rule-based.
+
+Use:
+
+VideoMAE
+
+or
+
+fine-tuned violence/explosion model.
+
+Visual indicators:
+
+sudden flash
+
+rapid scene change
+
+fireball
+
+smoke expansion
+
+Generate:
+
+Explosion Incident
+
+Risk = Critical
+
+Store evidence frames.
+
+====================================================
+7. FIRE DETECTION
+=================
+
+Add dedicated fire detection.
+
+Use:
+
+YOLO Fire Model
+
+or
+
+color + motion + smoke analysis.
+
+Generate:
+
+Fire Incident
+
+Severity Level
+
+Affected Region
+
+====================================================
+8. FALL DETECTION
+=================
+
+Use:
+
+MediaPipe Pose
+
+or
+
+YOLO Pose
+
+Track human posture.
+
+Detect:
+
+standing -> sudden horizontal position
+
+Generate:
+
+Fall Incident
+
+Confidence Score
+
+Timestamp
+
+====================================================
+9. EVIDENCE GALLERY
+===================
+
+Every incident must automatically create evidence.
+
+Store:
+
+Incident Type
+
+Timestamp
+
+Risk Level
+
+Evidence Frame
+
+Video Clip
+
+Display:
+
+Evidence Image
+
+Video Clip Preview
+
+Download Button
+
+====================================================
+10. INCIDENT TIMELINE
+=====================
+
+Timeline must contain:
+
+Object Detections
+
+Tracking Events
+
+Incident Events
+
+Risk Escalations
+
+AI Conclusions
+
+Example:
+
+17:01 Person detected
+
+17:04 Loitering detected
+
+17:07 Fight detected
+
+17:08 Risk escalated to High
+
+17:09 AI report generated
+
+====================================================
+11. AI INVESTIGATION AGENT
+==========================
+
+Use Gemini if available.
+
+If Gemini fails:
+
+Automatically switch to Groq.
+
+Use:
+
+llama-3.3-70b-versatile
+
+Generate:
+
+Incident Summary
+
+Threat Assessment
+
+Evidence Analysis
+
+Recommended Actions
+
+====================================================
+12. PERFORMANCE REQUIREMENTS
+============================
+
+Videos up to 3 minutes should process successfully.
+
+Generate all processed pipeline videos.
+
+Display processing progress.
+
+No mock data.
+
+No placeholders.
+
+No random incident generation.
+
+All incidents must originate from actual model outputs.
+
+====================================================
+SUCCESS CRITERIA
+================
+
+After uploading a CCTV video:
+
+I should see:
+
+1. Original video playing.
+2. Blur video playing.
+3. Contrast enhanced video playing.
+4. Edge detection video playing.
+5. Background subtraction video playing.
+6. YOLO detection video playing.
+7. Real object detections.
+8. Real violence/fight detection.
+9. Real accident detection.
+10. Real explosion/fire detection.
+11. Evidence gallery populated.
+12. AI-generated investigation report.
+
+No simulated outputs.

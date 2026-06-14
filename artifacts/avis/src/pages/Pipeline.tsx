@@ -1,38 +1,92 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useListVideos } from "@workspace/api-client-react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Cpu, Eye, Box, Layers, PlaySquare, RefreshCw } from "lucide-react";
+import { Activity, Cpu, Eye, Box, Layers, PlaySquare, RefreshCw, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STAGES = [
-  { id: "original",  title: "1. Source Frame",              icon: Activity, description: "Raw RGB frame extracted from video stream by OpenCV VideoCapture." },
-  { id: "blur",      title: "2. Noise Reduction",           icon: Layers,   description: "Gaussian blur kernel applied to suppress high-frequency noise and sensor artefacts." },
-  { id: "contrast",  title: "3. Contrast Enhancement",      icon: Eye,      description: "Grayscale conversion followed by CLAHE (Contrast Limited Adaptive Histogram Equalization)." },
-  { id: "edges",     title: "4. Edge Detection",            icon: Cpu,      description: "Canny algorithm identifying structural boundaries (thresholds 50–150)." },
-  { id: "motion",    title: "5. Background Subtraction",    icon: Activity, description: "Frame-difference background subtraction isolating moving foreground pixels." },
-  { id: "detection", title: "6. YOLOv8 Object Detection",   icon: Box,      description: "YOLOv8n CNN inference with bounding boxes, class labels, and confidence scores." },
+  { id: "original",  title: "1. Source Video",           icon: Activity, description: "Raw RGB frames captured by OpenCV VideoCapture." },
+  { id: "blur",      title: "2. Noise Reduction",        icon: Layers,   description: "Gaussian blur kernel (15×15) applied to suppress high-frequency noise and sensor artefacts." },
+  { id: "contrast",  title: "3. Contrast Enhancement",   icon: Eye,      description: "Grayscale conversion followed by CLAHE (Contrast Limited Adaptive Histogram Equalization)." },
+  { id: "edges",     title: "4. Edge Detection",         icon: Cpu,      description: "Canny algorithm identifying structural boundaries — thresholds 50–150." },
+  { id: "motion",    title: "5. Background Subtraction", icon: Activity, description: "MOG2 adaptive background subtraction isolating moving foreground pixels." },
+  { id: "detection", title: "6. Object Detection",       icon: Box,      description: "HOG person detector + MOG2 blob classifier with real-time bounding boxes." },
 ] as const;
 
 type Stage = typeof STAGES[number]["id"];
 
-function PipelineImage({ videoId, stage, refreshKey }: { videoId: string; stage: Stage; refreshKey: number }) {
-  const src = `/api/pipeline/frames/${videoId}/${stage}?v=${refreshKey}`;
+// ── Single stage panel (video + image fallback) ──────────────────────────────
+interface StagePanelProps {
+  videoId: string;
+  stage: Stage;
+  isMaster: boolean;
+  masterRef: React.RefObject<HTMLVideoElement | null>;
+  panelRef: React.RefCallback<HTMLVideoElement>;
+  refreshKey: number;
+}
+
+function StagePanel({ videoId, stage, isMaster, masterRef, panelRef, refreshKey }: StagePanelProps) {
+  const [mode, setMode] = useState<"loading" | "video" | "image">("loading");
+  const videoUrl = `/api/pipeline/video/${videoId}/${stage}?_k=${refreshKey}`;
+  const imageUrl = `/api/pipeline/frames/${videoId}/${stage}?v=${refreshKey}`;
+
+  // Probe for video availability
+  useEffect(() => {
+    setMode("loading");
+    fetch(`/api/pipeline/video/${videoId}/${stage}`, { method: "HEAD" })
+      .then(r => setMode(r.ok ? "video" : "image"))
+      .catch(() => setMode("image"));
+  }, [videoId, stage, refreshKey]);
+
+  if (mode === "loading") {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-black text-muted-foreground text-xs gap-2">
+        <Video className="w-4 h-4 animate-pulse" />
+        <span>Loading…</span>
+      </div>
+    );
+  }
+
+  if (mode === "image") {
+    return (
+      <img
+        src={imageUrl}
+        alt={stage}
+        className="w-full h-full object-contain rounded-sm"
+        style={{ minHeight: 180 }}
+      />
+    );
+  }
+
+  // VIDEO mode
   return (
-    <img
-      src={src}
-      alt={stage}
-      className="w-full h-full object-contain rounded-sm"
+    <video
+      key={`${videoId}-${stage}-${refreshKey}`}
+      ref={el => {
+        panelRef(el);
+        if (isMaster && masterRef && "current" in masterRef) {
+          (masterRef as React.MutableRefObject<HTMLVideoElement | null>).current = el;
+        }
+      }}
+      src={videoUrl}
+      className="w-full h-full object-contain"
       style={{ minHeight: 180 }}
+      loop
+      muted
+      playsInline
+      controls={isMaster}
+      preload="metadata"
     />
   );
 }
 
+// ── Main Pipeline page ───────────────────────────────────────────────────────
 export default function Pipeline() {
   const { data: videos } = useListVideos();
   const [selectedVideoId, setSelectedVideoId] = useState<string>("");
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshKey, setRefreshKey]           = useState(0);
 
   const processedVideos = videos?.filter(v => v.status === "processed") || [];
 
@@ -44,16 +98,56 @@ export default function Pipeline() {
 
   const selectedVideo = processedVideos.find(v => v.id.toString() === selectedVideoId);
 
+  // Video sync state
+  const masterRef   = useRef<HTMLVideoElement | null>(null);
+  const slaveRefs   = useRef<(HTMLVideoElement | null)[]>([]);
+  const syncingRef  = useRef(false);
+
+  const registerPanel = useCallback((index: number) => (el: HTMLVideoElement | null) => {
+    slaveRefs.current[index] = el;
+  }, []);
+
+  const syncSlaves = useCallback(() => {
+    if (syncingRef.current) return;
+    const master = masterRef.current;
+    if (!master) return;
+    syncingRef.current = true;
+    const t = master.currentTime;
+    slaveRefs.current.forEach((v, i) => {
+      if (!v || i === 0) return;
+      if (Math.abs(v.currentTime - t) > 0.2) { try { v.currentTime = t; } catch { /* */ } }
+      if (master.paused && !v.paused)  { v.pause(); }
+      if (!master.paused && v.paused)  { v.play().catch(() => { /* */ }); }
+    });
+    setTimeout(() => { syncingRef.current = false; }, 60);
+  }, []);
+
+  useEffect(() => {
+    const master = masterRef.current;
+    if (!master) return;
+    master.addEventListener("timeupdate", syncSlaves);
+    master.addEventListener("seeked",     syncSlaves);
+    master.addEventListener("play",       syncSlaves);
+    master.addEventListener("pause",      syncSlaves);
+    return () => {
+      master.removeEventListener("timeupdate", syncSlaves);
+      master.removeEventListener("seeked",     syncSlaves);
+      master.removeEventListener("play",       syncSlaves);
+      master.removeEventListener("pause",      syncSlaves);
+    };
+  }, [selectedVideoId, refreshKey, syncSlaves]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Processing Pipeline</h2>
-          <p className="text-muted-foreground">Real OpenCV computer vision algorithm output — actual processed frames.</p>
+          <p className="text-muted-foreground">
+            Synchronized CV video output — play the source video to drive all six processing stages in lockstep.
+          </p>
         </div>
-
         <div className="flex items-center gap-2">
-          <Select value={selectedVideoId} onValueChange={setSelectedVideoId}>
+          <Select value={selectedVideoId} onValueChange={v => { setSelectedVideoId(v); setRefreshKey(k => k+1); }}>
             <SelectTrigger className="w-[300px]">
               <PlaySquare className="w-4 h-4 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Select processed video" />
@@ -70,7 +164,7 @@ export default function Pipeline() {
             </SelectContent>
           </Select>
           {selectedVideoId && (
-            <Button variant="outline" size="icon" title="Refresh images" onClick={() => setRefreshKey(k => k + 1)}>
+            <Button variant="outline" size="icon" title="Refresh" onClick={() => setRefreshKey(k => k+1)}>
               <RefreshCw className="w-4 h-4" />
             </Button>
           )}
@@ -84,6 +178,8 @@ export default function Pipeline() {
           <span>{selectedVideo.fileName}</span>
           {selectedVideo.frameCount && <><span>·</span><span>{selectedVideo.frameCount.toLocaleString()} frames</span></>}
           {selectedVideo.durationSeconds && <><span>·</span><span>{selectedVideo.durationSeconds}s</span></>}
+          <span>·</span>
+          <span className="text-xs text-primary">▶ Play source video to synchronise all stages</span>
         </div>
       )}
 
@@ -102,15 +198,23 @@ export default function Pipeline() {
                   <stage.icon className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">{stage.title}</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] h-5 font-mono">STG-{i + 1}</Badge>
+                <div className="flex items-center gap-1">
+                  {i === 0 && <Badge variant="outline" className="text-[10px] h-5 font-mono text-primary border-primary/50">MASTER</Badge>}
+                  <Badge variant="outline" className="text-[10px] h-5 font-mono">STG-{i+1}</Badge>
+                </div>
               </div>
               <div className="relative aspect-video bg-black overflow-hidden">
-                <PipelineImage
+                <StagePanel
                   videoId={selectedVideoId}
                   stage={stage.id}
+                  isMaster={i === 0}
+                  masterRef={masterRef}
+                  panelRef={registerPanel(i)}
                   refreshKey={refreshKey}
                 />
-                <div className="absolute top-0 left-0 w-full h-[1px] bg-primary/20 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-[scan_4s_linear_infinite]" />
+                {i !== 0 && (
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-primary/20 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-[scan_4s_linear_infinite]" />
+                )}
               </div>
               <div className="p-3 bg-muted/10">
                 <p className="text-xs text-muted-foreground">{stage.description}</p>
